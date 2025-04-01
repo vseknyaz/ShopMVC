@@ -5,4 +5,5 @@ namespace ShopDomain.Model
     {
         public int Id { get; set; }
     }
+    //s
 }

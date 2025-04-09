@@ -1,9 +1,19 @@
+using ShopInfrastructure;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDbContext<DbsportsContext>(option => option.UseSqlServer(
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
+
 var app = builder.Build();
+
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -22,7 +32,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Categories}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 

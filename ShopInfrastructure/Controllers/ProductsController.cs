@@ -20,14 +20,14 @@ namespace ShopInfrastructure.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(int? id, string? name)
+        public async Task<IActionResult> Index(int? categoryId, string? name)
         {
-            if(id == null) return RedirectToAction("Categories", "Index");
+            if(categoryId == null) return RedirectToAction("Categories", "Index");
             // знахоження продуктів за категорією
-            ViewBag.CategoryId = id;
+            ViewBag.CategoryId = categoryId;
             ViewBag.CategoryName = name;
 
-            var productByCategory = _context.Products.Where(b => b.CategoryId == id).Include(b => b.Category);
+            var productByCategory = _context.Products.Where(b => b.CategoryId == categoryId).Include(b => b.Category);
             
             return View(await productByCategory.ToListAsync());
         }

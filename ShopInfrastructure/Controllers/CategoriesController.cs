@@ -41,7 +41,7 @@ namespace ShopInfrastructure.Controllers
             }
 
             //return View(category);
-            return RedirectToAction("Index", "Products", new { id = category.Id , name = category.Name});
+            return RedirectToAction("Index", "Products", new { categoryId = category.Id , name = category.Name});
         }
 
         // GET: Categories/Create

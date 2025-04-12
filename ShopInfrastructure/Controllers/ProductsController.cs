@@ -75,14 +75,14 @@ namespace ShopInfrastructure.Controllers
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 //return RedirectToAction(nameof(Index));
-                return RedirectToAction("Index", "Products", new { id = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
+                return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
             }
             //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
             //return View(product);
             ViewBag.CategoryId = categoryId;
             ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
-            return RedirectToAction("Index", "Products", new { id = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
+            return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
         }
 
         // GET: Products/Edit/5

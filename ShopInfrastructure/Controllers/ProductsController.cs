@@ -27,7 +27,7 @@ namespace ShopInfrastructure.Controllers
             ViewBag.CategoryId = categoryId;
             ViewBag.CategoryName = name;
 
-            var productByCategory = _context.Products.Where(b => b.CategoryId == categoryId).Include(b => b.Category);
+            var productByCategory = _context.Products.Where(b => b.CategoryId == categoryId).Include(b => b.Category).Include(p => p.Gender);
             
             return View(await productByCategory.ToListAsync());
         }
@@ -57,7 +57,6 @@ namespace ShopInfrastructure.Controllers
         {
             ViewBag.CategoryId = categoryId;
             ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", categoryId);
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name");
             return View();
         }
@@ -70,6 +69,7 @@ namespace ShopInfrastructure.Controllers
         public async Task<IActionResult> Create(int? categoryId,[Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
         {
             product.CategoryId = categoryId;
+            //ModelState.Remove("Gender");
             if (ModelState.IsValid)
             {
                 _context.Add(product);
@@ -77,12 +77,16 @@ namespace ShopInfrastructure.Controllers
                 //return RedirectToAction(nameof(Index));
                 return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
             }
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+
+            foreach (var error in ModelState["GenderId"].Errors)
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
-            //return View(product);
-            ViewBag.CategoryId = categoryId;
-            ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
-            return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
+            return View(product);
+            //ViewBag.CategoryId = categoryId;
+            //ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
+            //return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
         }
 
         // GET: Products/Edit/5

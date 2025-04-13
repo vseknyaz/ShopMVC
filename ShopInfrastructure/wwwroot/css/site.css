@@ -1,4 +1,4 @@
-html {
+﻿html {
   font-size: 14px;
 }
 
@@ -51,4 +51,26 @@ body {
 /* Reinforce dark text in main content */
 main, .text-dark {
     color: #333 !important; /* Dark gray for consistency */
+}
+
+
+/* footer adaptive */
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    position: relative;
+    width: 100%;
+/*    height: 60px;*/
+    background-color: #000;
+    color: #fff;
+    text-align: center;
 }

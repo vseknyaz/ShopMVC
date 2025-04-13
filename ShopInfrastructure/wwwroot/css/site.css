@@ -29,3 +29,26 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+/* Darken the navbar background for even better contrast */
+.navbar.bg-primary {
+    background-color: #00cc00; /* Slightly darker green than #00FF00 */
+}
+
+/* Ensure dropdown menu text is readable */
+.dropdown-menu {
+    background-color: #f8f9fa; /* Light gray background */
+}
+
+.dropdown-item {
+    color: #333; /* Dark gray text */
+}
+
+    .dropdown-item:hover {
+        background-color: #e9ecef; /* Subtle hover effect */
+        color: #000; /* Black text on hover */
+    }
+
+/* Reinforce dark text in main content */
+main, .text-dark {
+    color: #333 !important; /* Dark gray for consistency */
+}

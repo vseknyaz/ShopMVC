@@ -56,7 +56,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName">Back to List</a>
 </div>
 
 @section Scripts {

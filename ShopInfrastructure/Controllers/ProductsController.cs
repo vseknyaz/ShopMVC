@@ -19,6 +19,12 @@ namespace ShopInfrastructure.Controllers
             _context = context;
         }
 
+        private string GetCategoryName(int? categoryId)
+        {
+            if (!categoryId.HasValue) return null;
+            return _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
+        }
+
         // GET: Products
         public async Task<IActionResult> Index(int? categoryId, string? name)
         {
@@ -69,28 +75,24 @@ namespace ShopInfrastructure.Controllers
         public async Task<IActionResult> Create(int? categoryId,[Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
         {
             product.CategoryId = categoryId;
-            //ModelState.Remove("Gender");
+          
             if (ModelState.IsValid)
             {
                 _context.Add(product);
                 await _context.SaveChangesAsync();
-                //return RedirectToAction(nameof(Index));
                 return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
             }
 
-            foreach (var error in ModelState["GenderId"].Errors)
-            {
-                Console.WriteLine(error.ErrorMessage);
-            }
+           
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
-            return View(product);
-            //ViewBag.CategoryId = categoryId;
-            //ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
-            //return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
+            //return View(product);
+            ViewBag.CategoryId = categoryId;
+            ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
+            return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
         }
 
         // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, int? categoryId)
         {
             if (id == null)
             {
@@ -112,13 +114,12 @@ namespace ShopInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
+        public async Task<IActionResult> Edit(int id, int? categoryId, [Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
         {
             if (id != product.Id)
             {
                 return NotFound();
             }
-
             if (ModelState.IsValid)
             {
                 try
@@ -137,7 +138,7 @@ namespace ShopInfrastructure.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", new { categoryId, name = GetCategoryName(categoryId)});
             }
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);

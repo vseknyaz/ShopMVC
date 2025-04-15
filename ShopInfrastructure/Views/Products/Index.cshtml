@@ -41,7 +41,9 @@
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewBag.PriceSortParm" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" asp-route-genderId="@ViewBag.GenderId" asp-route-searchString="@ViewBag.SearchString" asp-route-pageNumber="@ViewBag.PageNumber">@Html.DisplayNameFor(model => model.Price)</a>
             </th>
-            <th>@Html.DisplayNameFor(model => model.Stock)</th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.StockSortParm" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" asp-route-genderId="@ViewBag.GenderId" asp-route-searchString="@ViewBag.SearchString" asp-route-pageNumber="@ViewBag.PageNumber">@Html.DisplayNameFor(model => model.Stock)</a>
+            </th>
             <th>@Html.DisplayNameFor(model => model.IsDeleted)</th>
             <th>@Html.DisplayNameFor(model => model.Category)</th>
             <th>@Html.DisplayNameFor(model => model.Gender)</th>

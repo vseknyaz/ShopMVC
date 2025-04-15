@@ -43,7 +43,7 @@ namespace ShopInfrastructure.Controllers
         }
 
         // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, int? categoryId)
         {
             if (id == null)
             {
@@ -58,7 +58,8 @@ namespace ShopInfrastructure.Controllers
             {
                 return NotFound();
             }
-
+            ViewBag.CategoryId = categoryId;
+            ViewBag.CategoryName = GetCategoryName(categoryId);
             return View(product);
         }
 

@@ -62,9 +62,9 @@
                     @Html.DisplayFor(modelItem => item.Gender.Name)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-sm btn-primary">Edit</a> |
-                    <a asp-action="Details" asp-controller="Products" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a> |
-                    <a asp-action="Delete" asp-controller="Products" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                    <a asp-action="Edit" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-sm btn-primary">Редагувати</a> |
+                    <a asp-action="Details" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-sm btn-info">Деталі</a> |
+                    <a asp-action="Delete" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-sm btn-danger">Видалити</a>
                 </td>
             </tr>
         }

@@ -26,20 +26,72 @@ namespace ShopInfrastructure.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(int? categoryId, string? name)
+        public async Task<IActionResult> Index(int? categoryId, int? genderId, string searchString, string? name, string sortOrder = "name_asc", int pageNumber = 1, int pageSize = 5)
         {
             if (categoryId == null)
-                return RedirectToAction("Index", "Categories"); // Виправлено перенаправлення
+                return RedirectToAction("Index", "Categories");
 
             ViewBag.CategoryId = categoryId;
             ViewBag.CategoryName = name;
 
-            var productByCategory = _context.Products
-                .Where(b => b.CategoryId == categoryId)
-                .Include(b => b.Category)
-                .Include(p => p.Gender);
+            ViewBag.NameSortParm = sortOrder == "name_asc" ? "name_desc" : "name_asc";
+            ViewBag.PriceSortParm = sortOrder == "price_asc" ? "price_desc" : "price_asc";
 
-            return View(await productByCategory.ToListAsync());
+            var products = _context.Products
+                .Include(b => b.Category)
+                .Include(p => p.Gender)
+                .Include(p => p.ProductSizes) // Додаємо ProductSizes
+                .ThenInclude(ps => ps.Size)   // Додаємо пов’язані розміри
+                .AsQueryable();
+
+            // Фільтрація за категорією
+            products = products.Where(p => p.CategoryId == categoryId);
+
+            // Фільтрація за статтю
+            if (genderId.HasValue)
+            {
+                products = products.Where(p => p.GenderId == genderId);
+                ViewBag.GenderId = genderId;
+            }
+
+            // Пошук
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                products = products.Where(p => p.Name.Contains(searchString) || p.Description.Contains(searchString));
+                ViewBag.SearchString = searchString;
+            }
+
+            // Сортування
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    products = products.OrderByDescending(p => p.Name);
+                    break;
+                case "price_asc":
+                    products = products.OrderBy(p => p.Price);
+                    break;
+                case "price_desc":
+                    products = products.OrderByDescending(p => p.Price);
+                    break;
+                default: // name_asc
+                    products = products.OrderBy(p => p.Name);
+                    break;
+            }
+
+            // Пагінація
+            int totalItems = await products.CountAsync();
+            var pagedProducts = await products
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.PageNumber = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            ViewData["Genders"] = new SelectList(_context.Genders, "Id", "Name", genderId);
+
+            return View(pagedProducts);
         }
 
         // GET: Products/Details/5
@@ -53,6 +105,8 @@ namespace ShopInfrastructure.Controllers
             var product = await _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Gender)
+                .Include(p => p.ProductSizes)
+                .ThenInclude(ps => ps.Size)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (product == null)
             {
@@ -64,18 +118,20 @@ namespace ShopInfrastructure.Controllers
         }
 
         // GET: Products/Create
+        // GET: Products/Create
         public IActionResult Create(int? categoryId)
         {
             ViewBag.CategoryId = categoryId;
-            ViewBag.CategoryName = GetCategoryName(categoryId);
+            ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name");
+            ViewData["Sizes"] = new MultiSelectList(_context.Sizes, "Id", "Name"); // Список розмірів
             return View();
         }
 
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int? categoryId, [Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
+        public async Task<IActionResult> Create(int? categoryId, [Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product, int[] selectedSizes)
         {
             product.CategoryId = categoryId;
 
@@ -83,14 +139,25 @@ namespace ShopInfrastructure.Controllers
             {
                 _context.Add(product);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = GetCategoryName(categoryId) });
+
+                // Додаємо зв’язки з розмірами
+                if (selectedSizes != null)
+                {
+                    foreach (var sizeId in selectedSizes)
+                    {
+                        _context.ProductSizes.Add(new ProductSize { ProductId = product.Id, SizeId = sizeId });
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name });
             }
 
-            // Якщо валідація не пройшла, повертаємо форму з помилками
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
+            ViewData["Sizes"] = new MultiSelectList(_context.Sizes, "Id", "Name", selectedSizes);
             ViewBag.CategoryId = categoryId;
-            ViewBag.CategoryName = GetCategoryName(categoryId);
-            return View(product); // Виправлено: повертаємо форму, а не перенаправляємо
+            ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
+            return View(product);
         }
 
         // GET: Products/Edit/5
@@ -107,17 +174,23 @@ namespace ShopInfrastructure.Controllers
                 return NotFound();
             }
 
+            var selectedSizes = await _context.ProductSizes
+                .Where(ps => ps.ProductId == id)
+                .Select(ps => ps.SizeId)
+                .ToListAsync();
+
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
-            ViewBag.CategoryId = categoryId; // Додаємо для "Back to List"
-            ViewBag.CategoryName = GetCategoryName(categoryId); // Додаємо для "Back to List"
+            ViewData["Sizes"] = new MultiSelectList(_context.Sizes, "Id", "Name", selectedSizes);
+            ViewBag.CategoryId = categoryId;
+            ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
             return View(product);
         }
 
         // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, int? categoryId, [Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
+        public async Task<IActionResult> Edit(int id, int? categoryId, [Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product, int[] selectedSizes)
         {
             if (id != product.Id)
             {
@@ -129,6 +202,20 @@ namespace ShopInfrastructure.Controllers
                 try
                 {
                     _context.Update(product);
+                    await _context.SaveChangesAsync();
+
+                    // Оновлюємо зв’язки з розмірами
+                    var existingSizes = _context.ProductSizes.Where(ps => ps.ProductId == id);
+                    _context.ProductSizes.RemoveRange(existingSizes);
+
+                    if (selectedSizes != null)
+                    {
+                        foreach (var sizeId in selectedSizes)
+                        {
+                            _context.ProductSizes.Add(new ProductSize { ProductId = id, SizeId = sizeId });
+                        }
+                    }
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -142,14 +229,14 @@ namespace ShopInfrastructure.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index", new { categoryId, name = GetCategoryName(categoryId) });
+                return RedirectToAction("Index", new { categoryId, name = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name });
             }
 
-            // Якщо валідація не пройшла, повертаємо форму з помилками
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
-            ViewBag.CategoryId = categoryId; // Додаємо для "Back to List"
-            ViewBag.CategoryName = GetCategoryName(categoryId); // Додаємо для "Back to List"
+            ViewData["Sizes"] = new MultiSelectList(_context.Sizes, "Id", "Name", selectedSizes);
+            ViewBag.CategoryId = categoryId;
+            ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
             return View(product);
         }
 

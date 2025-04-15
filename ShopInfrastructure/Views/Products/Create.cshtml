@@ -38,6 +38,10 @@
                 <select asp-for="GenderId" class="form-control" asp-items="@(ViewData["GenderId"] as SelectList)"></select>
                 <span asp-validation-for="GenderId" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label for="selectedSizes">Розміри</label>
+                <select id="selectedSizes" name="selectedSizes" multiple class="form-control" asp-items="@(ViewData["Sizes"] as MultiSelectList)"></select>
+            </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)

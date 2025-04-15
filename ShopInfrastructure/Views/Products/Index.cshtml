@@ -9,30 +9,43 @@
 <p>
     <a asp-action="Create" asp-controller="Products" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-primary">Створити новий продукт</a>
 </p>
+
+<!-- Форма для фільтрації та пошуку -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form asp-action="Index" method="get">
+            <input type="hidden" name="categoryId" value="@ViewBag.CategoryId" />
+            <input type="hidden" name="name" value="@ViewBag.CategoryName" />
+            <div class="form-group">
+                <label for="genderId">Фільтрувати за статтю:</label>
+                <select name="genderId" class="form-control" asp-items="@(ViewData["Genders"] as SelectList)" onchange="this.form.submit()">
+                    <option value="">Усі</option>
+                </select>
+            </div>
+            <div class="form-group mt-2">
+                <label for="searchString">Пошук:</label>
+                <input type="text" name="searchString" class="form-control" value="@ViewBag.SearchString" placeholder="Введіть назву або опис" />
+                <button type="submit" class="btn btn-primary mt-2">Шукати</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.NameSortParm" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" asp-route-genderId="@ViewBag.GenderId" asp-route-searchString="@ViewBag.SearchString" asp-route-pageNumber="@ViewBag.PageNumber">@Html.DisplayNameFor(model => model.Name)</a>
             </th>
+            <th>@Html.DisplayNameFor(model => model.Description)</th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.PriceSortParm" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" asp-route-genderId="@ViewBag.GenderId" asp-route-searchString="@ViewBag.SearchString" asp-route-pageNumber="@ViewBag.PageNumber">@Html.DisplayNameFor(model => model.Price)</a>
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Stock)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsDeleted)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Gender)
-            </th>
+            <th>@Html.DisplayNameFor(model => model.Stock)</th>
+            <th>@Html.DisplayNameFor(model => model.IsDeleted)</th>
+            <th>@Html.DisplayNameFor(model => model.Category)</th>
+            <th>@Html.DisplayNameFor(model => model.Gender)</th>
+            <th>Розміри</th>
             <th></th>
         </tr>
     </thead>
@@ -40,26 +53,22 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                <td>@Html.DisplayFor(modelItem => item.Stock)</td>
+                <td>@Html.DisplayFor(modelItem => item.IsDeleted)</td>
+                <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Gender.Name)</td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Price)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Stock)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsDeleted)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Category.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Gender.Name)
+                    @if (item.ProductSizes != null && item.ProductSizes.Any())
+                    {
+                        @string.Join(", ", item.ProductSizes.Select(ps => ps.Size.Name))
+                    }
+                    else
+                    {
+                        <span>Немає розмірів</span>
+                    }
                 </td>
                 <td>
                     <a asp-action="Edit" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-sm btn-primary">Редагувати</a> |
@@ -70,3 +79,34 @@
         }
     </tbody>
 </table>
+
+<!-- Пагінація -->
+<div class="row">
+    <div class="col-md-12">
+        <nav>
+            <ul class="pagination">
+                @if (ViewBag.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(ViewBag.PageNumber - 1)" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" asp-route-genderId="@ViewBag.GenderId" asp-route-searchString="@ViewBag.SearchString" asp-route-sortOrder="@ViewBag.SortOrder">Попередня</a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" asp-route-genderId="@ViewBag.GenderId" asp-route-searchString="@ViewBag.SearchString" asp-route-sortOrder="@ViewBag.SortOrder">@i</a>
+                    </li>
+                }
+                @if (ViewBag.PageNumber < ViewBag.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(ViewBag.PageNumber + 1)" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" asp-route-genderId="@ViewBag.GenderId" asp-route-searchString="@ViewBag.SearchString" asp-route-sortOrder="@ViewBag.SortOrder">Наступна</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>
+<div>
+    <a asp-action="Index" asp-controller="Products" class="btn btn-secondary">Назад до списку</a>
+</div>

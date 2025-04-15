@@ -32,8 +32,7 @@
                 <input asp-for="Stock" class="form-control" />
                 <span asp-validation-for="Stock" class="text-danger"></span>
             </div>
-            <input type="hidden" value="@ViewBag.CategoryId" name="categoryId" />
-  
+            <input type="hidden" name="categoryId" value="@ViewBag.CategoryId" />
             <div class="form-group">
                 <label asp-for="GenderId" class="control-label"></label>
                 <select asp-for="GenderId" class="form-control" asp-items="@(ViewData["GenderId"] as SelectList)"></select>
@@ -52,9 +51,11 @@
 </div>
 
 <div>
-    <a asp-action="Index" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName">Back to List</a>
+    <a asp-action="Index" asp-controller="Products" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-secondary">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -28,13 +28,17 @@ namespace ShopInfrastructure.Controllers
         // GET: Products
         public async Task<IActionResult> Index(int? categoryId, string? name)
         {
-            if(categoryId == null) return RedirectToAction("Categories", "Index");
-            // знахоження продуктів за категорією
+            if (categoryId == null)
+                return RedirectToAction("Index", "Categories"); // Виправлено перенаправлення
+
             ViewBag.CategoryId = categoryId;
             ViewBag.CategoryName = name;
 
-            var productByCategory = _context.Products.Where(b => b.CategoryId == categoryId).Include(b => b.Category).Include(p => p.Gender);
-            
+            var productByCategory = _context.Products
+                .Where(b => b.CategoryId == categoryId)
+                .Include(b => b.Category)
+                .Include(p => p.Gender);
+
             return View(await productByCategory.ToListAsync());
         }
 
@@ -62,33 +66,30 @@ namespace ShopInfrastructure.Controllers
         public IActionResult Create(int? categoryId)
         {
             ViewBag.CategoryId = categoryId;
-            ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
+            ViewBag.CategoryName = GetCategoryName(categoryId);
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name");
             return View();
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int? categoryId,[Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
+        public async Task<IActionResult> Create(int? categoryId, [Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
         {
             product.CategoryId = categoryId;
-          
+
             if (ModelState.IsValid)
             {
                 _context.Add(product);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
+                return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = GetCategoryName(categoryId) });
             }
 
-           
+            // Якщо валідація не пройшла, повертаємо форму з помилками
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
-            //return View(product);
             ViewBag.CategoryId = categoryId;
-            ViewBag.CategoryName = _context.Categories.FirstOrDefault(c => c.Id == categoryId)?.Name;
-            return RedirectToAction("Index", "Products", new { categoryId = product.CategoryId, name = _context.Categories.Where(c => c.Id == categoryId).FirstOrDefault().Name });
+            ViewBag.CategoryName = GetCategoryName(categoryId);
+            return View(product); // Виправлено: повертаємо форму, а не перенаправляємо
         }
 
         // GET: Products/Edit/5
@@ -104,14 +105,15 @@ namespace ShopInfrastructure.Controllers
             {
                 return NotFound();
             }
+
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
+            ViewBag.CategoryId = categoryId; // Додаємо для "Back to List"
+            ViewBag.CategoryName = GetCategoryName(categoryId); // Додаємо для "Back to List"
             return View(product);
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, int? categoryId, [Bind("Name,Description,Price,Stock,CategoryId,GenderId,IsDeleted,Id")] Product product)
@@ -120,6 +122,7 @@ namespace ShopInfrastructure.Controllers
             {
                 return NotFound();
             }
+
             if (ModelState.IsValid)
             {
                 try
@@ -138,10 +141,14 @@ namespace ShopInfrastructure.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index", new { categoryId, name = GetCategoryName(categoryId)});
+                return RedirectToAction("Index", new { categoryId, name = GetCategoryName(categoryId) });
             }
+
+            // Якщо валідація не пройшла, повертаємо форму з помилками
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", product.GenderId);
+            ViewBag.CategoryId = categoryId; // Додаємо для "Back to List"
+            ViewBag.CategoryName = GetCategoryName(categoryId); // Додаємо для "Back to List"
             return View(product);
         }
 

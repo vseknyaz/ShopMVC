@@ -1,5 +1,7 @@
 using ShopInfrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using ShopDomain.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +12,29 @@ builder.Services.AddDbContext<DbsportsContext>(option => option.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+// ???????????? Identity
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<DbsportsContext>()
+    .AddDefaultTokenProviders();
+
 var app = builder.Build();
 
-
+// ????????????? ????? ? ??????????????
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var userManager = services.GetRequiredService<UserManager<User>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        await RoleInitializer.InitializeAsync(userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
 
 
 // Configure the HTTP request pipeline.

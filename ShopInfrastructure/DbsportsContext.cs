@@ -27,7 +27,7 @@ public partial class DbsportsContext : IdentityDbContext<User> // Змінюєм
 
     // Видаляємо OnConfiguring, щоб використовувати конфігурацію з Program.cs
     //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //    => optionsBuilder.UseSqlServer("Server=DESKTOP-SQPUCEH\\SQLEXPRESS; Database=DBSports; Trusted_Connection=True; TrustServerCertificate=True; ");
+    //=> optionsBuilder.UseSqlServer("Server=DESKTOP-SQPUCEH\\SQLEXPRESS; Database=DBSports; Trusted_Connection=True; TrustServerCertificate=True; Encrypt=False;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

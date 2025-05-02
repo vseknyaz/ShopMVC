@@ -19,7 +19,6 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 var app = builder.Build();
 
-// ????????????? ????? ? ??????????????
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -46,8 +45,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

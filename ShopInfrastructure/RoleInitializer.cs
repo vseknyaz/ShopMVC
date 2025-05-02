@@ -3,23 +3,19 @@ using ShopDomain.Model;
 
 namespace ShopInfrastructure
 {
-    public class RoleInitializer
+    public static class RoleInitializer // Зробимо клас статичним, як у Copilot
     {
         public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             string adminEmail = "admin@shop.com";
             string adminPassword = "Admin_123!";
 
-            if (await roleManager.FindByNameAsync("admin") == null)
-            {
-                await roleManager.CreateAsync(new IdentityRole("admin"));
-            }
-            if (await roleManager.FindByNameAsync("user") == null)
-            {
-                await roleManager.CreateAsync(new IdentityRole("user"));
-            }
+            if (!await roleManager.RoleExistsAsync("Admin"))
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            if (!await roleManager.RoleExistsAsync("User"))
+                await roleManager.CreateAsync(new IdentityRole("User"));
 
-            if (await userManager.FindByNameAsync(adminEmail) == null)
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
                 var admin = new User
                 {
@@ -31,9 +27,7 @@ namespace ShopInfrastructure
                 };
                 var result = await userManager.CreateAsync(admin, adminPassword);
                 if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(admin, "admin");
-                }
+                    await userManager.AddToRoleAsync(admin, "Admin");
             }
         }
     }

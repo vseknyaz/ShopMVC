@@ -29,9 +29,9 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
                                 <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Index">All Categories</a></li>
-                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="1">Footwear</a></li>
-                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="2">Trousers</a></li>
-                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="2">Upwear</a></li>
+                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="1">Взуття</a></li>
+                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="2">Штанці</a></li>
+                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="2">Верхній Одяг</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -49,6 +49,20 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Register">Зареєструватись</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">Увійти</a>
+                        </li>
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="nav-link btn btn-link">Вийти</button>
+                            </form>
                         </li>
                     </ul>
                 </div>

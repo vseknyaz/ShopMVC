@@ -5,7 +5,7 @@ using ShopDomain.Model;
 
 namespace ShopInfrastructure;
 
-public partial class DbsportsContext : IdentityDbContext<User> // Змінюємо спадкування
+public partial class DbsportsContext : IdentityDbContext<User>
 {
     public DbsportsContext()
     {
@@ -25,13 +25,9 @@ public partial class DbsportsContext : IdentityDbContext<User> // Змінюєм
     public virtual DbSet<Size> Sizes { get; set; }
     public virtual DbSet<Status> Statuses { get; set; }
 
-    // Видаляємо OnConfiguring, щоб використовувати конфігурацію з Program.cs
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //=> optionsBuilder.UseSqlServer("Server=DESKTOP-SQPUCEH\\SQLEXPRESS; Database=DBSports; Trusted_Connection=True; TrustServerCertificate=True; Encrypt=False;");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder); // Додаємо виклик базового методу для Identity
+        base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Category>(entity =>
         {
@@ -64,10 +60,10 @@ public partial class DbsportsContext : IdentityDbContext<User> // Змінюєм
             entity.HasOne(d => d.Order).WithMany(p => p.OrderProducts)
                 .HasForeignKey(d => d.OrderId)
                 .HasConstraintName("FK_OrderProducts_Orders");
-            entity.HasOne(d => d.Product).WithMany(p => p.OrderProducts)
-                .HasForeignKey(d => d.ProductId)
+            entity.HasOne(d => d.ProductSize).WithMany() // Змінено з Product на ProductSize, зворотної колекції немає
+                .HasForeignKey(d => d.ProductSizeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrderProducts_Products");
+                .HasConstraintName("FK_OrderProducts_ProductSizes");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -89,6 +85,7 @@ public partial class DbsportsContext : IdentityDbContext<User> // Змінюєм
         modelBuilder.Entity<ProductSize>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__ProductS__3214EC07E2166041");
+            entity.Property(e => e.StockQuantity).HasDefaultValue(0); // Додаємо значення за замовчуванням для StockQuantity
             entity.HasOne(d => d.Product).WithMany(p => p.ProductSizes)
                 .HasForeignKey(d => d.ProductId)
                 .HasConstraintName("FK_ProductSizes_Products");

@@ -1,12 +1,8 @@
 ﻿@model List<ShopDomain.Model.Order>
 
-@{
-    ViewData["Title"] = "Мої замовлення";
-}
+<h1>Ваші замовлення</h1>
 
-<h1>Мої замовлення</h1>
-
-@if (!Model.Any())
+@if (Model == null || !Model.Any())
 {
     <p>У вас немає оформлених замовлень.</p>
 }
@@ -27,7 +23,7 @@ else
                 <tr>
                     <td>@order.Id</td>
                     <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
-                    <td>@order.OrderProducts.Sum(op => op.ProductSize.Product.Price * op.Quantity)</td>
+                    <td>@order.OrderProducts.Sum(op => op.ProductSize?.Product?.Price * op.Quantity ?? 0)</td>
                     <td>
                         <a asp-action="Details" asp-route-id="@order.Id">Деталі</a>
                     </td>

@@ -6,6 +6,15 @@
 
 <h1>Товари у категорії: @ViewBag.CategoryName</h1>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
 <p>
     <a asp-action="Create" asp-controller="Products" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-primary">Створити новий продукт</a>
 </p>
@@ -40,7 +49,7 @@
                     {
                         <span>↓</span>
                     }
-                    else if (ViewBag.SortOrder == "name_asc")
+                                        else if (ViewBag.SortOrder == "name_asc")
                     {
                         <span>↑</span>
                     }
@@ -53,20 +62,18 @@
                     {
                         <span>↓</span>
                     }
-                    else if (ViewBag.SortOrder == "price_asc")
+                                        else if (ViewBag.SortOrder == "price_asc")
                     {
                         <span>↑</span>
                     }
                 </a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewBag.StockSortParm" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" asp-route-genderId="@ViewBag.GenderId" asp-route-searchString="@ViewBag.SearchString" asp-route-pageNumber="@ViewBag.PageNumber">@Html.DisplayNameFor(model => model.Stock)</a>
             </th>
             <th>@Html.DisplayNameFor(model => model.IsDeleted)</th>
             <th>@Html.DisplayNameFor(model => model.Category)</th>
             <th>@Html.DisplayNameFor(model => model.Gender)</th>
             <th>Розміри</th>
             <th>Дії</th>
+            <th>Додати до кошика</th>
         </tr>
     </thead>
     <tbody>
@@ -76,10 +83,9 @@
                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
                 <td>@Html.DisplayFor(modelItem => item.Description)</td>
                 <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                <td>@Html.DisplayFor(modelItem => item.Stock)</td>
                 <td>@Html.DisplayFor(modelItem => item.IsDeleted)</td>
-                <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
-                <td>@Html.DisplayFor(modelItem => item.Gender.Name)</td>
+                <td>@(item.Category?.Name ?? "Невідомо")</td>
+                <td>@(item.Gender?.Name ?? "Невідомо")</td>
                 <td>
                     @if (item.ProductSizes != null && item.ProductSizes.Any())
                     {
@@ -94,6 +100,24 @@
                     <a asp-action="Edit" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-sm btn-primary">Редагувати</a>
                     <a asp-action="Details" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-sm btn-info">Деталі</a>
                     <a asp-action="Delete" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-sm btn-danger">Видалити</a>
+                </td>
+                <td>
+                    @if (item.ProductSizes != null && item.ProductSizes.Any())
+                    {
+                        foreach (var ps in item.ProductSizes)
+                        {
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="form-inline">
+                                <input type="hidden" name="productSizeId" value="@ps.Id" />
+                                <label>Розмір: @ps.Size.Name (Доступно: @ps.StockQuantity)</label>
+                                <input type="number" name="quantity" value="1" min="1" max="@ps.StockQuantity" class="form-control form-control-sm ml-2" style="width: 70px;" />
+                                <button type="submit" class="btn btn-sm btn-success ml-2">Додати</button>
+                            </form>
+                        }
+                    }
+                    else
+                    {
+                        <span class="text-muted">Немає розмірів для додавання</span>
+                    }
                 </td>
             </tr>
         }
@@ -137,17 +161,17 @@
     }
 
     .thead-light th {
-        font-weight: bold !important; /* Змушуємо всі заголовки бути жирними */
-        color: #333 !important; /* Темний колір тексту для всіх заголовків */
+        font-weight: bold !important;
+        color: #333 !important;
     }
 
         .thead-light th a, .thead-light th a:visited {
-            color: #333 !important; /* Колір посилань у заголовках */
-            text-decoration: none !important; /* Прибираємо підкреслення */
+            color: #333 !important;
+            text-decoration: none !important;
         }
 
             .thead-light th a:hover {
-                color: #007bff !important; /* Колір при наведенні */
-                text-decoration: underline !important; /* Підкреслення при наведенні */
+                color: #007bff !important;
+                text-decoration: underline !important;
             }
 </style>

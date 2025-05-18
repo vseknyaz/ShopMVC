@@ -28,7 +28,5 @@ public partial class Product : Entity
 
     public virtual Gender? Gender { get; set; } // Прибрано = null!, Gender може бути null, якщо не завантажено
 
-    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
-
     public virtual ICollection<ProductSize> ProductSizes { get; set; } = new List<ProductSize>();
 }

@@ -1,0 +1,38 @@
+﻿@model List<ShopDomain.Model.Order>
+
+@{
+    ViewData["Title"] = "Мої замовлення";
+}
+
+<h1>Мої замовлення</h1>
+
+@if (!Model.Any())
+{
+    <p>У вас немає оформлених замовлень.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Номер замовлення</th>
+                <th>Дата</th>
+                <th>Сума</th>
+                <th>Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
+                    <td>@order.OrderProducts.Sum(op => op.ProductSize.Product.Price * op.Quantity)</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@order.Id">Деталі</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

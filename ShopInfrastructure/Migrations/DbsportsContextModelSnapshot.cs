@@ -171,7 +171,7 @@ namespace ShopInfrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Categori__3214EC07CDECD591");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Gender", b =>
@@ -193,7 +193,7 @@ namespace ShopInfrastructure.Migrations
                     b.HasIndex(new[] { "Name" }, "UQ__Genders__737584F6C5E9F128")
                         .IsUnique();
 
-                    b.ToTable("Genders", (string)null);
+                    b.ToTable("Genders");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Order", b =>
@@ -215,12 +215,18 @@ namespace ShopInfrastructure.Migrations
                     b.Property<int?>("StatusId")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id")
                         .HasName("PK__Orders__3214EC079E89A7B9");
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.OrderProduct", b =>
@@ -234,9 +240,6 @@ namespace ShopInfrastructure.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ProductSizeId")
                         .HasColumnType("int");
 
@@ -248,11 +251,9 @@ namespace ShopInfrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductId");
-
                     b.HasIndex("ProductSizeId");
 
-                    b.ToTable("OrderProducts", (string)null);
+                    b.ToTable("OrderProducts");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Product", b =>
@@ -294,7 +295,7 @@ namespace ShopInfrastructure.Migrations
 
                     b.HasIndex("GenderId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.ProductSize", b =>
@@ -323,7 +324,7 @@ namespace ShopInfrastructure.Migrations
 
                     b.HasIndex("SizeId");
 
-                    b.ToTable("ProductSizes", (string)null);
+                    b.ToTable("ProductSizes");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Size", b =>
@@ -342,7 +343,7 @@ namespace ShopInfrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Sizes__3214EC07D16730C1");
 
-                    b.ToTable("Sizes", (string)null);
+                    b.ToTable("Sizes");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Status", b =>
@@ -361,7 +362,7 @@ namespace ShopInfrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Statuses__3214EC074E72FF1B");
 
-                    b.ToTable("Statuses", (string)null);
+                    b.ToTable("Statuses");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.User", b =>
@@ -371,10 +372,6 @@ namespace ShopInfrastructure.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -500,7 +497,15 @@ namespace ShopInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Orders_Statuses");
 
+                    b.HasOne("ShopDomain.Model.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Status");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ShopDomain.Model.OrderProduct", b =>
@@ -511,10 +516,6 @@ namespace ShopInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_OrderProducts_Orders");
-
-                    b.HasOne("ShopDomain.Model.Product", null)
-                        .WithMany("OrderProducts")
-                        .HasForeignKey("ProductId");
 
                     b.HasOne("ShopDomain.Model.ProductSize", "ProductSize")
                         .WithMany()
@@ -584,8 +585,6 @@ namespace ShopInfrastructure.Migrations
 
             modelBuilder.Entity("ShopDomain.Model.Product", b =>
                 {
-                    b.Navigation("OrderProducts");
-
                     b.Navigation("ProductSizes");
                 });
 

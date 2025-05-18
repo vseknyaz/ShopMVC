@@ -1,7 +1,8 @@
-using ShopInfrastructure;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using ShopDomain.Model;
+using ShopInfrastructure;
+using ShopInfrastructure.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,12 +11,20 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<DbsportsContext>(option => option.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
+));
 
-// ???????????? Identity
-builder.Services.AddIdentity<User, IdentityRole>()
-    .AddEntityFrameworkStores<DbsportsContext>()
-    .AddDefaultTokenProviders();
+// Налаштування Identity
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+})
+.AddEntityFrameworkStores<DbsportsContext>()
+.AddDefaultTokenProviders();
 
 var app = builder.Build();
 
@@ -31,16 +40,14 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogError(ex, "Помилка ініціалізації ролей і користувачів.");
     }
 }
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -50,12 +57,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Categories}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

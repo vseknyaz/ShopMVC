@@ -64,6 +64,7 @@ public partial class DbsportsContext : IdentityDbContext<User>
                 .HasForeignKey(d => d.ProductSizeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_OrderProducts_ProductSizes");
+            entity.Ignore("ProductId");
         });
 
         modelBuilder.Entity<Product>(entity =>

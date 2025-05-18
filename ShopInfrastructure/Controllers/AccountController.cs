@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShopDomain.Model;
+using ShopInfrastructure.Models;
+using ShopInfrastructure.ViewModels;
 
-namespace ShopDomainMVC.Controllers
+namespace ShopInfrastructure.Controllers
 {
     public class AccountController : Controller
     {
@@ -22,25 +24,22 @@ namespace ShopDomainMVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = new User
                 {
-                    UserName = model.Email,
                     Email = model.Email,
+                    UserName = model.Email,
                     FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Address = model.Address
+                    LastName = model.LastName
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, "User");
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Categories");
+                    await _signInManager.SignInAsync(user, false);
+                    return RedirectToAction("Index", "Home");
                 }
                 foreach (var error in result.Errors)
                 {
@@ -60,18 +59,21 @@ namespace ShopDomainMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine($"Validation Error: {error.ErrorMessage}");
+            }
+            ModelState.Remove("ReturnUrl");
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
                     if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-                    {
                         return Redirect(model.ReturnUrl);
-                    }
-                    return RedirectToAction("Index", "Categories");
+                    return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError(string.Empty, "Неправильний логін чи (та) пароль");
+                ModelState.AddModelError("", "Неправильний логін чи пароль");
             }
             return View(model);
         }
@@ -80,9 +82,8 @@ namespace ShopDomainMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // видаляємо автентифікаційні куки
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Categories");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

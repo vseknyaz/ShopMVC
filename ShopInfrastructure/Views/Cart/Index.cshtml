@@ -1,0 +1,45 @@
+﻿@model ShopDomain.Model.Order
+
+@{
+    ViewData["Title"] = "Кошик";
+}
+
+<h1>Ваш кошик</h1>
+
+@if (Model == null || Model.OrderProducts == null || !Model.OrderProducts.Any())
+{
+    <p>Ваш кошик порожній.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Розмір</th>
+                <th>Кількість</th>
+                <th>Ціна</th>
+                <th>Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderProducts)
+            {
+                <tr>
+                    <td>@item.ProductSize.Product.Name</td>
+                    <td>@item.ProductSize.Size.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@(item.ProductSize.Product.Price* item.Quantity)</td>
+                    <td>
+                        <a asp-action="UpdateQuantity" asp-route-id="@item.Id" asp-route-quantity="@(item.Quantity + 1 > 20 ? item.Quantity + 1 : 20)">+</a> |
+                        <a asp-action="UpdateQuantity" asp-route-id="@item.Id" asp-route-quantity="@(item.Quantity > 1 ? item.Quantity - 1 : 1)">-</a>|
+                        <a asp-action="RemoveFromCart" asp-route-id="@item.Id">Видалити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <p>Загальна сума: @(Model.OrderProducts.Sum(op => op.ProductSize.Product.Price * op.Quantity))</p>
+    <a asp-action="Checkout" class="btn btn-primary">Оформити замовлення</a>
+}

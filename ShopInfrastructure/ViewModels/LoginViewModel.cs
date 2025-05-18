@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ShopDomain.Model
+namespace ShopInfrastructure.ViewModels
 {
     public class LoginViewModel
     {
@@ -15,6 +15,7 @@ namespace ShopDomain.Model
 
         [Display(Name = "Запам'ятати?")]
         public bool RememberMe { get; set; }
+
         public string ReturnUrl { get; set; }
     }
 }

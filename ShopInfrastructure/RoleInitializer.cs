@@ -1,33 +1,31 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using ShopDomain.Model;
+using ShopInfrastructure.Models;
 
 namespace ShopInfrastructure
 {
-    public static class RoleInitializer // Зробимо клас статичним, як у Copilot
+    public class RoleInitializer
     {
         public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             string adminEmail = "admin@shop.com";
-            string adminPassword = "Admin_123!";
-
-            if (!await roleManager.RoleExistsAsync("Admin"))
-                await roleManager.CreateAsync(new IdentityRole("Admin"));
-            if (!await roleManager.RoleExistsAsync("User"))
-                await roleManager.CreateAsync(new IdentityRole("User"));
-
-            if (await userManager.FindByEmailAsync(adminEmail) == null)
+            string password = "Admin123";
+            if (await roleManager.FindByNameAsync("admin") == null)
+                await roleManager.CreateAsync(new IdentityRole("admin"));
+            if (await roleManager.FindByNameAsync("user") == null)
+                await roleManager.CreateAsync(new IdentityRole("user"));
+            if (await userManager.FindByNameAsync(adminEmail) == null)
             {
                 var admin = new User
                 {
                     Email = adminEmail,
                     UserName = adminEmail,
                     FirstName = "Admin",
-                    LastName = "User",
-                    Address = "Default Address"
+                    LastName = "User"
                 };
-                var result = await userManager.CreateAsync(admin, adminPassword);
+                var result = await userManager.CreateAsync(admin, password);
                 if (result.Succeeded)
-                    await userManager.AddToRoleAsync(admin, "Admin");
+                    await userManager.AddToRoleAsync(admin, "admin");
             }
         }
     }

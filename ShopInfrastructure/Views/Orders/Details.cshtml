@@ -1,0 +1,35 @@
+﻿@model ShopDomain.Model.Order
+
+@{
+    ViewData["Title"] = "Деталі замовлення";
+}
+
+<h1>Деталі замовлення №@Model.Id</h1>
+
+<p>Дата: @Model.OrderDate.ToString("dd.MM.yyyy")</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Товар</th>
+            <th>Розмір</th>
+            <th>Кількість</th>
+            <th>Ціна</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderProducts)
+        {
+            <tr>
+                <td>@item.ProductSize.Product.Name</td>
+                <td>@item.ProductSize.Size.Name</td>
+                <td>@item.Quantity</td>
+                <td>@(item.ProductSize.Product.Price* item.Quantity)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>Загальна сума: @(Model.OrderProducts.Sum(op => op.ProductSize.Product.Price * op.Quantity))</p>
+
+<a asp-action="Index" class="btn btn-secondary">Назад до замовлень</a>

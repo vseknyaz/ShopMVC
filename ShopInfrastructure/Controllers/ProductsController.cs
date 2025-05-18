@@ -29,6 +29,7 @@ namespace ShopInfrastructure.Controllers
         // GET: Products
         public async Task<IActionResult> Index(int? categoryId, int? genderId, string searchString, string name, string sortOrder = "name_asc", int pageNumber = 1, int pageSize = 5)
         {
+            //TempData["SuccessMessage"] = null;
             if (categoryId == null)
                 return RedirectToAction("Index", "Categories");
 

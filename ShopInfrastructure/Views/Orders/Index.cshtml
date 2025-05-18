@@ -11,7 +11,6 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Номер замовлення</th>
                 <th>Дата</th>
                 <th>Сума</th>
                 <th>Дії</th>
@@ -21,7 +20,6 @@ else
             @foreach (var order in Model)
             {
                 <tr>
-                    <td>@order.Id</td>
                     <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
                     <td>@order.OrderProducts.Sum(op => op.ProductSize?.Product?.Price * op.Quantity ?? 0)</td>
                     <td>

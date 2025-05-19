@@ -10,22 +10,37 @@ namespace ShopInfrastructure
         {
             string adminEmail = "admin@shop.com";
             string password = "Admin123";
-            if (await roleManager.FindByNameAsync("admin") == null)
-                await roleManager.CreateAsync(new IdentityRole("admin"));
-            if (await roleManager.FindByNameAsync("user") == null)
-                await roleManager.CreateAsync(new IdentityRole("user"));
-            if (await userManager.FindByNameAsync(adminEmail) == null)
+
+            // Ensure roles exist
+            if (await roleManager.FindByNameAsync("Admin") == null)
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            if (await roleManager.FindByNameAsync("User") == null)
+                await roleManager.CreateAsync(new IdentityRole("User"));
+
+            var admin = await userManager.FindByEmailAsync(adminEmail) ?? await userManager.FindByNameAsync(adminEmail);
+            if (admin == null)
             {
-                var admin = new User
+                admin = new User
                 {
                     Email = adminEmail,
                     UserName = adminEmail,
                     FirstName = "Admin",
-                    LastName = "User"
+                    LastName = "User",
+                    EmailConfirmed = true
                 };
                 var result = await userManager.CreateAsync(admin, password);
                 if (result.Succeeded)
-                    await userManager.AddToRoleAsync(admin, "admin");
+                    await userManager.AddToRoleAsync(admin, "Admin");
+            }
+            else
+            {
+                var currentRoles = await userManager.GetRolesAsync(admin);
+                if (!currentRoles.Contains("Admin"))
+                {
+                    if (currentRoles.Any())
+                        await userManager.RemoveFromRolesAsync(admin, currentRoles);
+                    await userManager.AddToRoleAsync(admin, "Admin");
+                }
             }
         }
     }

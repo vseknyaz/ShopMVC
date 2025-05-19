@@ -16,7 +16,10 @@
 }
 
 <p>
-    <a asp-action="Create" asp-controller="Products" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-primary">Створити новий продукт</a>
+    @if (User.IsInRole("admin"))
+    {
+        <a asp-action="Create" asp-controller="Products" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-primary">Створити новий продукт</a>
+    }
 </p>
 
 <!-- Форма для фільтрації та пошуку -->
@@ -68,11 +71,20 @@
                     }
                 </a>
             </th>
-            <th>@Html.DisplayNameFor(model => model.IsDeleted)</th>
+            @if (User.IsInRole("admin"))
+            {
+                <th>@Html.DisplayNameFor(model => model.IsDeleted)</th>
+            }
+            
+
             <th>@Html.DisplayNameFor(model => model.Category)</th>
             <th>@Html.DisplayNameFor(model => model.Gender)</th>
-            <th>Розміри</th>
-            <th>Дії</th>
+            <th>Sizes</th>
+            @if (User.IsInRole("admin"))
+            {
+                <th>Дії</th>
+            }
+            
             <th>Додати до кошика</th>
         </tr>
     </thead>
@@ -83,7 +95,10 @@
                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
                 <td>@Html.DisplayFor(modelItem => item.Description)</td>
                 <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                <td>@Html.DisplayFor(modelItem => item.IsDeleted)</td>
+                @if (User.IsInRole("admin"))
+                {
+                    <td>@Html.DisplayFor(modelItem => item.IsDeleted)</td>
+                }
                 <td>@(item.Category?.Name ?? "Невідомо")</td>
                 <td>@(item.Gender?.Name ?? "Невідомо")</td>
                 <td>
@@ -96,11 +111,14 @@
                         <span class="text-muted">Немає розмірів</span>
                     }
                 </td>
-                <td>
-                    <a asp-action="Edit" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-sm btn-primary">Редагувати</a>
-                    <a asp-action="Details" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-sm btn-info">Деталі</a>
-                    <a asp-action="Delete" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-sm btn-danger">Видалити</a>
-                </td>
+                 @if (User.IsInRole("admin"))
+                {
+                    <td>
+                        <a asp-action="Edit" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-sm btn-primary">Редагувати</a>
+                        <a asp-action="Details" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-sm btn-info">Деталі</a>
+                        <a asp-action="Delete" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-sm btn-danger">Видалити</a>
+                    </td>
+                }
                 <td>
                     @if (item.ProductSizes != null && item.ProductSizes.Any())
                     {

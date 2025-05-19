@@ -322,5 +322,55 @@ namespace ShopInfrastructure.Controllers
         {
             return _context.Products.Any(e => e.Id == id);
         }
+        [AllowAnonymous]
+        public async Task<IActionResult> Search(string searchString, string sortOrder = "name_asc", int pageNumber = 1, int pageSize = 10)
+        {
+            ViewBag.NameSortParm = sortOrder == "name_asc" ? "name_desc" : "name_asc";
+            ViewBag.PriceSortParm = sortOrder == "price_asc" ? "price_desc" : "price_asc";
+
+            var products = _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Gender)
+                .Include(p => p.ProductSizes)
+                .ThenInclude(ps => ps.Size)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                products = products.Where(p => p.Name.Contains(searchString) ||
+                                              p.Description.Contains(searchString) ||
+                                              p.Category.Name.Contains(searchString));
+                ViewBag.SearchString = searchString;
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    products = products.OrderByDescending(p => p.Name);
+                    break;
+                case "price_asc":
+                    products = products.OrderBy(p => p.Price);
+                    break;
+                case "price_desc":
+                    products = products.OrderByDescending(p => p.Price);
+                    break;
+                default: // name_asc
+                    products = products.OrderBy(p => p.Name);
+                    break;
+            }
+
+            int totalItems = await products.CountAsync();
+            var pagedProducts = await products
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.PageNumber = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            ViewBag.SortOrder = sortOrder;
+
+            return View("SearchResults", pagedProducts);
+        }
     }
 }

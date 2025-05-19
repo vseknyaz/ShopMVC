@@ -171,7 +171,7 @@ namespace ShopInfrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Categori__3214EC07CDECD591");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Gender", b =>
@@ -193,7 +193,7 @@ namespace ShopInfrastructure.Migrations
                     b.HasIndex(new[] { "Name" }, "UQ__Genders__737584F6C5E9F128")
                         .IsUnique();
 
-                    b.ToTable("Genders");
+                    b.ToTable("Genders", (string)null);
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Order", b =>
@@ -226,7 +226,7 @@ namespace ShopInfrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("ShopDomain.Model.OrderProduct", b =>
@@ -253,7 +253,7 @@ namespace ShopInfrastructure.Migrations
 
                     b.HasIndex("ProductSizeId");
 
-                    b.ToTable("OrderProducts");
+                    b.ToTable("OrderProducts", (string)null);
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Product", b =>
@@ -292,7 +292,7 @@ namespace ShopInfrastructure.Migrations
 
                     b.HasIndex("GenderId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("ShopDomain.Model.ProductSize", b =>
@@ -321,7 +321,7 @@ namespace ShopInfrastructure.Migrations
 
                     b.HasIndex("SizeId");
 
-                    b.ToTable("ProductSizes");
+                    b.ToTable("ProductSizes", (string)null);
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Size", b =>
@@ -340,7 +340,7 @@ namespace ShopInfrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Sizes__3214EC07D16730C1");
 
-                    b.ToTable("Sizes");
+                    b.ToTable("Sizes", (string)null);
                 });
 
             modelBuilder.Entity("ShopDomain.Model.Status", b =>
@@ -359,7 +359,7 @@ namespace ShopInfrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Statuses__3214EC074E72FF1B");
 
-                    b.ToTable("Statuses");
+                    b.ToTable("Statuses", (string)null);
                 });
 
             modelBuilder.Entity("ShopDomain.Model.User", b =>

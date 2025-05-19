@@ -1,16 +1,169 @@
 ﻿@{
-    ViewData["Title"] = "Головна сторінка";
+    ViewData["Title"] = "Головна - TrosexSportsHub";
 }
 
+<!-- Блок поточного користувача -->
 @if (User.Identity.IsAuthenticated)
 {
-    <p>Вітаємо, @User.Identity.Name</p>
-    <form method="post" asp-controller="Account" asp-action="Logout">
-        <input type="submit" value="Вихід" class="btn btn-primary" />
-    </form>
+    <div class="user-info-bar bg-primary text-black-50 py-2">
+        <div class="container text-end">
+            <span>Ви увійшли як: <strong>@User.Identity.Name</strong></span>
+        </div>
+    </div>
 }
-else
-{
-    <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Вхід</a>
-    <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Реєстрація</a>
-}
+
+<div class="hero-section">
+    <div class="container">
+        <div class="hero-content text-center text-white">
+            <h1 class="display-4 fw-bold mb-4">Ласкаво просимо до TrosexSportsHub</h1>
+            <p class="lead mb-5">Ваш преміальний магазин якісного спорядження та одягу</p>
+            <a asp-controller="Products" asp-action="Search" method="get" class="btn btn-primary btn-lg px-4 me-2">Знайти товар</a>
+            <a asp-controller="Categories" asp-action="Index" class="btn btn-outline-light btn-lg px-4">Переглянути категорії</a>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h2 class="section-title">Популярні категорії</h2>
+            <p class="text-muted">Ознайомтесь з нашими топ-колекціями</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="category-card card h-100 border-0 shadow-sm">
+                <img src="https://via.placeholder.com/400x300?text=Взуття" class="card-img-top" alt="Взуття">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Взуття</h5>
+                    <a asp-controller="Categories" asp-action="Details" asp-route-id="1" class="btn btn-sm btn-outline-primary">Переглянути колекцію</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="category-card card h-100 border-0 shadow-sm">
+                <img src="https://via.placeholder.com/400x300?text=Штани" class="card-img-top" alt="Штани">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Штанці</h5>
+                    <a asp-controller="Categories" asp-action="Details" asp-route-id="2" class="btn btn-sm btn-outline-primary">Переглянути колекцію</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="category-card card h-100 border-0 shadow-sm">
+                <img src="https://via.placeholder.com/400x300?text=Верхній+Одяг" class="card-img-top" alt="Верхній Одяг">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Верхній Одяг</h5>
+                    <a asp-controller="Categories" asp-action="Details" asp-route-id="8" class="btn btn-sm btn-outline-primary">Переглянути колекцію</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="mb-4">Нові надходження</h2>
+                <p class="lead">Відкрийте для себе наші новинки, створені для високої продуктивності та стилю.</p>
+                <a asp-controller="Products" asp-action="Index" class="btn btn-primary">Всі товари</a>
+            </div>
+            <div class="col-md-6">
+                <div class="product-carousel">
+                    <img src="https://via.placeholder.com/600x400?text=Нові+товари" class="img-fluid rounded shadow" alt="Нові надходження">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12 text-center mb-5">
+            <h2 class="section-title">Чому обирають нас</h2>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4 text-center">
+            <div class="p-4">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4">
+                    <i class="bi bi-truck fs-2"></i>
+                </div>
+                <h4>Швидка доставка</h4>
+                <p class="text-muted">Отримайте своє замовлення швидко до дверей.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 text-center">
+            <div class="p-4">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4">
+                    <i class="bi bi-arrow-repeat fs-2"></i>
+                </div>
+                <h4>Легкий повернення</h4>
+                <p class="text-muted">Не задоволені? Ми пропонуємо простий процес повернення.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 text-center">
+            <div class="p-4">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4">
+                    <i class="bi bi-shield-check fs-2"></i>
+                </div>
+                <h4>Гарантія якості</h4>
+                <p class="text-muted">Ми гарантуємо якість усіх наших товарів.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://via.placeholder.com/1920x600?text=Спортивне+спорядження');
+        background-size: cover;
+        background-position: center;
+        padding: 120px 0;
+        margin-bottom: 50px;
+    }
+
+    .user-info-bar {
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+    }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 3px;
+            background: #0d6efd;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+    .category-card {
+        transition: transform 0.3s ease;
+    }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .icon-box {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>

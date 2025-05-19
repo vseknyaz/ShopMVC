@@ -4,44 +4,83 @@
     ViewData["Title"] = "Деталі продукту";
 }
 
-<h1>Деталі продукту</h1>
-
-<div>
-    <h4>@Model.Name</h4>
+<div class="container mt-4">
+    <h1>Деталі продукту</h1>
     <hr />
-    <dl class="row">
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Name)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Name)</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Description)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Description)</dd>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-4">@Model.Name</h4>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Price)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Price)</dd>
+            <dl class="row">
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Name)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Name)</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Category)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Category.Name)</dd>
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Description)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Description)</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Gender)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Gender.Name)</dd>
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Price)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Price)</dd>
 
-        <dt class="col-sm-2">Розміри</dt>
-        <dd class="col-sm-10">
-            @if (Model.ProductSizes != null && Model.ProductSizes.Any())
-            {
-                @string.Join(", ", Model.ProductSizes.Select(ps => ps.Size.Name))
-            }
-            else
-            {
-                <span>Немає розмірів</span>
-            }
-        </dd>
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Category)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Category.Name)</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IsDeleted)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.IsDeleted)</dd>
-    </dl>
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Gender)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Gender.Name)</dd>
+
+                <dt class="col-sm-2">Розміри</dt>
+                <dd class="col-sm-10">
+                    @if (Model.ProductSizes != null && Model.ProductSizes.Any())
+                    {
+                        @string.Join(", ", Model.ProductSizes.Select(ps => ps.Size.Name))
+                    }
+                    else
+                    {
+                        <span class="text-muted">Немає розмірів</span>
+                    }
+                </dd>
+
+                @if (User.IsInRole("admin"))
+                {
+                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IsDeleted)</dt>
+                    <dd class="col-sm-10">@Html.DisplayFor(model => model.IsDeleted)</dd>
+                }
+            </dl>
+
+            <div class="mt-4">
+                @if (User.IsInRole("admin"))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-categoryId="@ViewBag.CategoryId"
+                       class="btn btn-primary me-2">
+                        Редагувати
+                    </a>
+                }
+                <a asp-action="Index" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName"
+                   class="btn btn-outline-secondary">
+                    Переглянути товари в категорії
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-primary">Редагувати</a> |
-    <a asp-action="Index" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-secondary">Назад до списку</a>
-</div>
+
+<style>
+    .card {
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .card-title {
+        color: #333;
+        font-weight: 600;
+    }
+
+    dt {
+        font-weight: 500;
+        color: #555;
+    }
+
+    dd {
+        margin-bottom: 0.8rem;
+    }
+</style>

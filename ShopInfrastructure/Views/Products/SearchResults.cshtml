@@ -1,0 +1,155 @@
+﻿@model IEnumerable<ShopDomain.Model.Product>
+
+@{
+    ViewData["Title"] = "Результати пошуку";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Результати пошуку: <span class="text-muted">"@ViewBag.SearchString"</span></h1>
+        <span class="badge bg-light text-dark fs-6">Знайдено: @Model.Count()</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-light mt-4 border">
+            <i class="bi bi-search me-2"></i>За вашим запитом нічого не знайдено
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Фільтри -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3"><i class="bi bi-funnel me-2"></i>Фільтри</h5>
+                        <form method="get" asp-action="Search">
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small">Сортування</label>
+                                <select name="sortOrder" class="form-select border-0 bg-light" onchange="this.form.submit()">
+                                    <option value="name_asc" selected="@(ViewBag.SortOrder == "name_asc")">За назвою (А-Я)</option>
+                                    <option value="name_desc" selected="@(ViewBag.SortOrder == "name_desc")">За назвою (Я-А)</option>
+                                    <option value="price_asc" selected="@(ViewBag.SortOrder == "price_asc")">Від дешевих</option>
+                                    <option value="price_desc" selected="@(ViewBag.SortOrder == "price_desc")">Від дорогих</option>
+                                </select>
+                            </div>
+                            <input type="hidden" name="searchString" value="@ViewBag.SearchString" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Результати -->
+            <div class="col-lg-9">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                                <div class="position-relative">
+                                    <img src="https://via.placeholder.com/300x200?text=Product+Image" class="card-img-top" alt="@item.Name">
+                                    <div class="position-absolute bottom-0 end-0 m-2">
+                                        <span class="badge bg-white text-dark">@item.Price.ToString("C")</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title mb-2">@item.Name</h5>
+                                    <p class="card-text text-muted small mb-3">@item.Description</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a asp-action="Details" asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                            <i class="bi bi-eye me-1"></i> Деталі
+                                        </a>
+                                        <span class="text-muted small">@item.Category?.Name</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Пагінація -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <nav aria-label="Пагінація" class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            @if (ViewBag.PageNumber > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link border-0 shadow-sm rounded mx-1"
+                                       asp-action="Search"
+                                       asp-route-searchString="@ViewBag.SearchString"
+                                       asp-route-sortOrder="@ViewBag.SortOrder"
+                                       asp-route-pageNumber="@(ViewBag.PageNumber - 1)">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                            }
+
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                                    <a class="page-link border-0 shadow-sm rounded mx-1 @(i == ViewBag.PageNumber ? "bg-primary text-white" : "")"
+                                       asp-action="Search"
+                                       asp-route-searchString="@ViewBag.SearchString"
+                                       asp-route-sortOrder="@ViewBag.SortOrder"
+                                       asp-route-pageNumber="@i">@i</a>
+                                </li>
+                            }
+
+                            @if (ViewBag.PageNumber < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link border-0 shadow-sm rounded mx-1"
+                                       asp-action="Search"
+                                       asp-route-searchString="@ViewBag.SearchString"
+                                       asp-route-sortOrder="@ViewBag.SortOrder"
+                                       asp-route-pageNumber="@(ViewBag.PageNumber + 1)">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+
+    .card-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .card-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .page-link {
+        min-width: 40px;
+        text-align: center;
+    }
+</style>

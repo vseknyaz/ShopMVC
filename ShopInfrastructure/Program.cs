@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ShopDomain.Model;
 using ShopInfrastructure;
 using ShopInfrastructure.Models;
+using ShopInfrastructure.Services.DataPort;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DbsportsContext>(option => option.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+builder.Services
+    .AddScoped<IDataPortServiceFactory<Product>, ProductDataPortServiceFactory>();
 
 // Налаштування Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>

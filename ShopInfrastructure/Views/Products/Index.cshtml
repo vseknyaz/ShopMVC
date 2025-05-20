@@ -16,7 +16,7 @@
 }
 
 <p>
-    @if (User.IsInRole("admin"))
+    @if (User.IsInRole("Admin"))
     {
         <a asp-action="Create" asp-controller="Products" asp-route-categoryId="@ViewBag.CategoryId" class="btn btn-primary">Створити новий продукт</a>
     }
@@ -42,6 +42,8 @@
         </form>
     </div>
 </div>
+
+
 
 <table class="table table-bordered table-hover">
     <thead class="thead-light">
@@ -71,7 +73,7 @@
                     }
                 </a>
             </th>
-            @if (User.IsInRole("admin"))
+            @if (User.IsInRole("Admin"))
             {
                 <th>@Html.DisplayNameFor(model => model.IsDeleted)</th>
             }
@@ -80,7 +82,7 @@
             <th>@Html.DisplayNameFor(model => model.Category)</th>
             <th>@Html.DisplayNameFor(model => model.Gender)</th>
             <th>Sizes</th>
-            @if (User.IsInRole("admin"))
+            @if (User.IsInRole("Admin"))
             {
                 <th>Дії</th>
             }
@@ -95,7 +97,7 @@
                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
                 <td>@Html.DisplayFor(modelItem => item.Description)</td>
                 <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                @if (User.IsInRole("admin"))
+                @if (User.IsInRole("Admin"))
                 {
                     <td>@Html.DisplayFor(modelItem => item.IsDeleted)</td>
                 }
@@ -111,7 +113,7 @@
                         <span class="text-muted">Немає розмірів</span>
                     }
                 </td>
-                 @if (User.IsInRole("admin"))
+                 @if (User.IsInRole("Admin"))
                 {
                     <td>
                         <a asp-action="Edit" asp-controller="Products" asp-route-id="@item.Id" asp-route-categoryId="@ViewBag.CategoryId" asp-route-name="@ViewBag.CategoryName" class="btn btn-sm btn-primary">Редагувати</a>

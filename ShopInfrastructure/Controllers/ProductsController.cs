@@ -1,24 +1,72 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShopDomain.Model;
 using ShopInfrastructure;
+using ShopInfrastructure.Services.DataPort;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ShopInfrastructure.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class ProductsController : Controller
     {
         private readonly DbsportsContext _context;
+        private readonly IDataPortServiceFactory<Product> _dataPortFactory;
 
-        public ProductsController(DbsportsContext context)
+        public ProductsController(
+            DbsportsContext context,
+            IDataPortServiceFactory<Product> dataPortFactory)
         {
             _context = context;
+            _dataPortFactory = dataPortFactory;
         }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult Import() => View();
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Import(
+            IFormFile fileExcel,
+            CancellationToken cancellationToken)
+        {
+            if (fileExcel == null || fileExcel.Length == 0)
+            {
+                ModelState.AddModelError("", "Будь ласка, оберіть .xlsx файл");
+                return View();
+            }
+
+            var service = _dataPortFactory.GetImportService(fileExcel.ContentType);
+            await service.ImportFromStreamAsync(
+                fileExcel.OpenReadStream(), cancellationToken);
+
+            TempData["SuccessMessage"] = "Імпорт завершено";
+            return RedirectToAction(nameof(Index), new { categoryId = ViewBag.CategoryId });
+        }
+
+        [HttpGet, Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Export()
+        {
+            var service = _dataPortFactory.GetExportService(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            // no using here
+            var ms = new MemoryStream();
+            await service.WriteToAsync(ms);
+            ms.Position = 0;
+
+            return File(
+                ms,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"products_{DateTime.UtcNow:yyyyMMdd}.xlsx"
+            );
+        }
+        //import
+
+
 
         private string GetCategoryName(int? categoryId)
         {

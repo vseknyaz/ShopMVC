@@ -280,6 +280,11 @@ namespace ShopInfrastructure.Controllers
             if (id != product.Id || categoryId == null)
                 return NotFound();
 
+            if (!product.CategoryId.HasValue || product.CategoryId != categoryId)
+            {
+                product.CategoryId = categoryId.Value;
+            }
+
             if (ModelState.IsValid)
             {
                 using var transaction = await _context.Database.BeginTransactionAsync();
@@ -288,58 +293,79 @@ namespace ShopInfrastructure.Controllers
                     _context.Update(product);
                     await _context.SaveChangesAsync();
 
-                    // Видаляємо старі зв’язки ProductSize
-                    var existingSizes = _context.ProductSizes.Where(ps => ps.ProductId == id);
-                    _context.ProductSizes.RemoveRange(existingSizes);
+                    // Завантажуємо існуючі ProductSizes
+                    var existingSizes = _context.ProductSizes
+                        .Where(ps => ps.ProductId == id)
+                        .ToList();
 
-                    // Додаємо нові зв’язки
+                    // Оновлюємо або додаємо нові розміри
                     if (selectedSizes != null && selectedSizes.Length > 0)
                     {
                         if (stockQuantities != null && stockQuantities.Length == selectedSizes.Length)
                         {
                             for (int i = 0; i < selectedSizes.Length; i++)
                             {
-                                if (stockQuantities[i] >= 0)
+                                var sizeId = selectedSizes[i];
+                                var quantity = stockQuantities[i];
+
+                                if (quantity < 0)
+                                    continue; // Пропускаємо невалідні кількості
+
+                                // Перевіряємо, чи розмір уже є
+                                var existingSize = existingSizes.FirstOrDefault(ps => ps.SizeId == sizeId);
+                                if (existingSize != null)
                                 {
+                                    // Оновлюємо кількість для існуючого розміру
+                                    existingSize.StockQuantity = quantity;
+                                }
+                                else
+                                {
+                                    // Додаємо новий розмір
                                     _context.ProductSizes.Add(new ProductSize
                                     {
                                         ProductId = id,
-                                        SizeId = selectedSizes[i],
-                                        StockQuantity = stockQuantities[i]
+                                        SizeId = sizeId,
+                                        StockQuantity = quantity
                                     });
                                 }
                             }
                         }
                         else
                         {
-                            // Якщо stockQuantities не передано, встановлюємо 0
                             foreach (var sizeId in selectedSizes)
                             {
-                                _context.ProductSizes.Add(new ProductSize
+                                var existingSize = existingSizes.FirstOrDefault(ps => ps.SizeId == sizeId);
+                                if (existingSize == null)
                                 {
-                                    ProductId = id,
-                                    SizeId = sizeId,
-                                    StockQuantity = 0
-                                });
+                                    // Додаємо новий розмір із дефолтною кількістю 0
+                                    _context.ProductSizes.Add(new ProductSize
+                                    {
+                                        ProductId = id,
+                                        SizeId = sizeId,
+                                        StockQuantity = 0
+                                    });
+                                }
                             }
                         }
+                        await _context.SaveChangesAsync();
                     }
 
-                    await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     TempData["SuccessMessage"] = "Товар успішно оновлено!";
                     return RedirectToAction("Index", new { categoryId, name = GetCategoryName(categoryId) });
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.Id))
-                        return NotFound();
-                    throw;
-                }
-                catch
+                catch (DbUpdateException ex)
                 {
                     await transaction.RollbackAsync();
-                    ModelState.AddModelError("", "Помилка при редагуванні товару.");
+                    var innerException = ex.InnerException?.Message ?? "No inner exception";
+                    ModelState.AddModelError("", $"Помилка при редагуванні товару: {ex.Message}. Внутрішня помилка: {innerException}");
+                    Console.WriteLine($"DbUpdateException: {ex.Message}, Inner: {innerException}");
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", $"Помилка при редагуванні товару: {ex.Message}");
+                    Console.WriteLine($"Exception: {ex.Message}");
                 }
             }
 

@@ -1,49 +1,93 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TrosexSportsHub</title>
+
+    <!-- Bootstrap Brite -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap_brite.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Custom styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ShopInfrastructure.styles.css" asp-append-version="true" />
+
     @RenderSection("Styles", required: false)
 </head>
 <body>
+
     <header>
         <nav class="navbar navbar-expand-lg bg-primary">
             <div class="container-fluid">
-                <a class="navbar-brand text-dark fw-bold" asp-area="" asp-controller="Home" asp-action="Index">TrosexSportsHub</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <a class="navbar-brand text-dark fw-bold"
+                   asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-shop me-1"></i> TrosexSportsHub
+                </a>
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        <!-- Товари -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Товари
+                            <a class="nav-link dropdown-toggle text-dark"
+                               href="#" id="categoriesDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-list-ul me-1"></i> Товари
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
-                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Index">Категорії</a></li>
-                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="1">Взуття</a></li>
-                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="2">Штанці</a></li>
-                                <li><a class="dropdown-item text-dark" asp-controller="Categories" asp-action="Details" asp-route-id="8">Верхній Одяг</a></li>
+                                <li>
+                                    <a class="dropdown-item text-dark"
+                                       asp-controller="Categories" asp-action="Index">
+                                        <i class="bi bi-folder2-open me-1"></i> Категорії
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-dark"
+                                       asp-controller="Categories"
+                                       asp-action="Details" asp-route-id="1">
+                                        <i class="bi bi-shoe-prints me-1"></i> Взуття
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-dark"
+                                       asp-controller="Categories"
+                                       asp-action="Details" asp-route-id="2">
+                                        <i class="bi bi-truck me-1"></i> Штанці
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-dark"
+                                       asp-controller="Categories"
+                                       asp-action="Details" asp-route-id="8">
+                                        <i class="bi bi-journal-text me-1"></i> Верхній Одяг
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 
-                        <!-- Додайте це в навбар -->
-                        <form class="d-flex" asp-controller="Products" asp-action="Search" method="get">
+                        <!-- Пошук -->
+                        <form class="d-flex ms-3" asp-controller="Products" asp-action="Search" method="get">
                             <input class="form-control me-2"
                                    type="search"
                                    name="searchString"
                                    placeholder="Швидкий пошук..."
-                                   aria-label="Search">
-                            <button class="btn btn-outline-light" type="submit">Шукати</button>
+                                   aria-label="Search" />
+                            <button class="btn btn-outline-light" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
                         </form>
 
-                        <!-- User-specific tabs (visible when logged in) -->
+                        <!-- User-specific tabs -->
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
@@ -58,49 +102,76 @@
                                 </a>
                             </li>
                         }
-                        
+
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Roles" asp-action="Index">
-                                    <i class="bi bi-receipt"></i> Переглянути Ролі
+                                    <i class="bi bi-shield-lock"></i> Ролі
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Sizes" asp-action="Index">Розміри</a>
+                                <a class="nav-link text-dark" asp-controller="Sizes" asp-action="Index">
+                                    <i class="bi bi-rulers"></i> Розміри
+                                </a>
                             </li>
                         }
                     </ul>
+
+                    <!-- Authentication links -->
                     <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Register">Зареєструватись</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Login">Увійти</a>
-                        </li>
-                        <li class="nav-item">
-                            <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="nav-link btn btn-link">Вийти</button>
-                            </form>
-                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark"
+                                   href="#" id="userDropdown" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i> @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="px-3 py-1">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-danger">Вийти</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">
+                                    <i class="bi bi-pencil-square me-1"></i> Зареєструватись
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Увійти
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container my-4 p-4 bg-light shadow-sm text-dark">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
+
     <footer class="border-top footer bg-dark text-light mt-auto">
         <div class="container py-3">
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <p class="mb-0">
-                        <a class="text-light text-decoration-none" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> |
-                        <a class="text-light text-decoration-none" asp-controller="Home" asp-action="About">About Us</a>
+                        <a class="text-light text-decoration-none"
+                           asp-controller="Home" asp-action="Privacy">Privacy</a> |
+                        <a class="text-light text-decoration-none"
+                           asp-controller="Home" asp-action="About">About Us</a>
                     </p>
                 </div>
                 <div class="col-md-6 text-md-end mt-2 mt-md-0">
@@ -111,10 +182,10 @@
             </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-     @await RenderSectionAsync("Scripts", required: false)
-
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -38,6 +38,18 @@
                 <label for="selectedSizes">Розміри</label>
                 <select id="selectedSizes" name="selectedSizes" multiple class="form-control" asp-items="@(ViewData["Sizes"] as MultiSelectList)"></select>
             </div>
+            <div id="sizeQuantities" class="form-group">
+                <h5>Кількість для кожного розміру:</h5>
+                @foreach (var size in (ViewData["Sizes"] as MultiSelectList))
+                {
+                    var productSize = Model.ProductSizes?.FirstOrDefault(ps => ps.SizeId == Convert.ToInt32(size.Value));
+                    var quantity = productSize != null ? productSize.StockQuantity : 0;
+                    <div class="form-group size-quantity" style="display: none;" data-size-id="@size.Value">
+                        <label>Кількість для розміру @size.Text:</label>
+                        <input type="number" name="stockQuantities" class="form-control stock-quantity" min="0" value="@quantity" data-size-id="@size.Value" disabled />
+                    </div>
+                }
+            </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
@@ -58,4 +70,17 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        $(document).ready(function () {
+            $('#selectedSizes').change(function () {
+                $('.size-quantity').hide();
+                $('.stock-quantity').prop('disabled', true); // Вимикаємо всі поля
+                $('#selectedSizes option:selected').each(function () {
+                    var sizeId = $(this).val();
+                    $('.size-quantity[data-size-id="' + sizeId + '"]').show();
+                    $('.stock-quantity[data-size-id="' + sizeId + '"]').prop('disabled', false); // Вмикаємо лише для вибраних
+                });
+            }).change(); // Викликаємо при завантаженні
+        });
+    </script>
 }

@@ -193,17 +193,35 @@ namespace ShopInfrastructure.Controllers
                     _context.Add(product);
                     await _context.SaveChangesAsync();
 
-                    if (selectedSizes != null && stockQuantities != null && selectedSizes.Length == stockQuantities.Length)
+                    if (selectedSizes != null && selectedSizes.Length > 0)
                     {
-                        for (int i = 0; i < selectedSizes.Length; i++)
+                        if (stockQuantities != null && stockQuantities.Length == selectedSizes.Length)
                         {
-                            if (stockQuantities[i] < 0) continue;
-                            _context.ProductSizes.Add(new ProductSize
+                            for (int i = 0; i < selectedSizes.Length; i++)
                             {
-                                ProductId = product.Id,
-                                SizeId = selectedSizes[i],
-                                StockQuantity = stockQuantities[i]
-                            });
+                                if (stockQuantities[i] >= 0)
+                                {
+                                    _context.ProductSizes.Add(new ProductSize
+                                    {
+                                        ProductId = product.Id,
+                                        SizeId = selectedSizes[i],
+                                        StockQuantity = stockQuantities[i]
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Якщо stockQuantities не передано або не співпадає, встановлюємо 0
+                            foreach (var sizeId in selectedSizes)
+                            {
+                                _context.ProductSizes.Add(new ProductSize
+                                {
+                                    ProductId = product.Id,
+                                    SizeId = sizeId,
+                                    StockQuantity = 0
+                                });
+                            }
                         }
                         await _context.SaveChangesAsync();
                     }
@@ -233,7 +251,10 @@ namespace ShopInfrastructure.Controllers
             if (id == null || categoryId == null)
                 return NotFound();
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.ProductSizes)
+                .ThenInclude(ps => ps.Size)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (product == null)
                 return NotFound();
 
@@ -267,20 +288,40 @@ namespace ShopInfrastructure.Controllers
                     _context.Update(product);
                     await _context.SaveChangesAsync();
 
+                    // Видаляємо старі зв’язки ProductSize
                     var existingSizes = _context.ProductSizes.Where(ps => ps.ProductId == id);
                     _context.ProductSizes.RemoveRange(existingSizes);
 
-                    if (selectedSizes != null && stockQuantities != null && selectedSizes.Length == stockQuantities.Length)
+                    // Додаємо нові зв’язки
+                    if (selectedSizes != null && selectedSizes.Length > 0)
                     {
-                        for (int i = 0; i < selectedSizes.Length; i++)
+                        if (stockQuantities != null && stockQuantities.Length == selectedSizes.Length)
                         {
-                            if (stockQuantities[i] < 0) continue;
-                            _context.ProductSizes.Add(new ProductSize
+                            for (int i = 0; i < selectedSizes.Length; i++)
                             {
-                                ProductId = id,
-                                SizeId = selectedSizes[i],
-                                StockQuantity = stockQuantities[i]
-                            });
+                                if (stockQuantities[i] >= 0)
+                                {
+                                    _context.ProductSizes.Add(new ProductSize
+                                    {
+                                        ProductId = id,
+                                        SizeId = selectedSizes[i],
+                                        StockQuantity = stockQuantities[i]
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Якщо stockQuantities не передано, встановлюємо 0
+                            foreach (var sizeId in selectedSizes)
+                            {
+                                _context.ProductSizes.Add(new ProductSize
+                                {
+                                    ProductId = id,
+                                    SizeId = sizeId,
+                                    StockQuantity = 0
+                                });
+                            }
                         }
                     }
 
